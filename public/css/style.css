@@ -1,0 +1,75 @@
+/* Navbar heigth */
+.navbar {
+	height: 10vh;
+}
+
+/* Hero Section */
+.hero {
+	height: 75vh;
+	background-color: gray;
+}
+
+.hero p {
+	margin: 15px;
+	text-align: center;
+	font-size: larger;
+}
+
+/* Ajustes de estilo para la barra lateral */
+.sidebar {
+	height: 100vh;
+	position: sticky;
+	top: auto;
+	left: 0;
+	width: 250px;
+	padding-top: 1rem;
+	background-color: #f8f9fa;
+	border-right: 1px solid rgba(50, 50, 50, 0.5);
+	/* Color de fondo de la barra lateral */
+}
+
+.content {
+	flex-direction: row;
+}
+
+.title-container {
+	border-bottom: 1px solid black !important;
+}
+
+.z-index {
+	z-index: 1;
+	position: relative;
+}
+
+.chat-container {
+	flex-direction: column;
+	display: flex;
+}
+
+.messages {
+	min-height: 65%;
+}
+
+.chat-container .input-group {
+	align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+	/* Ajustes para pantallas pequeñas */
+	.sidebar {
+		display: none !important;
+		/* Ocultar la barra lateral en pantallas pequeñas */
+	}
+
+	.content {
+		flex-direction: column;
+	}
+
+	.offcanvas {
+		position: relative;
+	}
+
+	#responsiveButton {
+		position: relative;
+	}
+}
