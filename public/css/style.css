@@ -42,16 +42,14 @@
 }
 
 .chat-container {
-	flex-direction: column;
-	display: flex;
+	height: 60vh;
+	justify-content: end;
+	overflow-y: scroll;
 }
 
-.messages {
-	min-height: 65%;
-}
 
 .chat-container .input-group {
-	align-items: flex-start;
+	flex-direction: row;
 }
 
 @media (max-width: 768px) {
