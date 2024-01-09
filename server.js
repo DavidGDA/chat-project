@@ -16,9 +16,6 @@ const WebSocketIO = require('socket.io');
 const app = express();
 const server = nodeHTTP.createServer(app);
 const io = new WebSocketIO.Server(server, {
-	// cors: {
-	// 	origin: 'http://localhost:3000',
-	// },
 	connectionStateRecovery: {
 		maxDisconnectionDuration: 6000,
 	},
@@ -31,8 +28,16 @@ io.engine.on('connection_error', err => {
 io.on('connection', socket => {
 	console.log('connected');
 
-	socket.on('message', (message, username) => {
-		io.emit('message', message, username);
+	socket.on('message', (message, username, user_id) => {
+		io.emit('message', message, username, user_id);
+
+		const db = new sqlite3.Database('database.sqlite3');
+		const query = 'INSERT INTO messages (user_id, message) VALUES(?, ?)';
+		db.run(query, [user_id, message], function (err) {
+			if (err) {
+				console.log('Error on message query: ' + err);
+			}
+		});
 	});
 
 	socket.on('disconnect', () => {
@@ -106,7 +111,7 @@ app.route('/accounts/singup')
 		res.redirect('/accounts/login');
 	});
 
-app.get('/dashboard/chat', (req, res) => {
+app.get('/dashboard/chat', function (req, res) {
 	if (req.session.username) {
 		res.render('chat', { title: 'Chat' });
 	} else {
@@ -114,11 +119,20 @@ app.get('/dashboard/chat', (req, res) => {
 	}
 });
 
-app.post('/helpers/username', (req, res) => {
+app.post('/helpers/userchat', function (req, res) {
 	if (req.session.username) {
-		res.json({ username: req.session.username });
+		const db = new sqlite3.Database('database.sqlite3');
+		const query = 'SELECT user_id FROM users WHERE username = ?';
+		db.get(query, [req.session.username], (err, row) => {
+			if (err) {
+				console.log('Database error on obtain user_id: ' + err);
+			}
+			console.log(req.session.username + ' : ' + row.user_id);
+			res.json({ username: req.session.username, user_id: row.user_id });
+		});
+		
 	} else {
-		res.json({ username: 'no-user' });
+		res.json({ username: 'no-user', user_id: undefined});
 	}
 });
 
