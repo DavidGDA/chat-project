@@ -10,8 +10,8 @@
 	<body>
 		<%- include('common/header') %>
 		<div class="row">
-			<div class="col-md-2"><%- include('common/sidebar') %></div>
-			<div class="col chat-col">
+			<div class="col-md-3"><%- include('common/sidebar') %></div>
+			<div class="col-md-9 chat-col">
 				<main>
 					<!-- Contenido principal -->
 					<div class="col-chat-container">
@@ -21,13 +21,13 @@
 						<div class="chat-container container-fluid d-flex flex-sm-column p-3">
 							<div id="messages">
 							</div>
-						</div>
 							<form id="chat-form" action="" method="post">
-								<input id="message-input" type="text" class="form-control" placeholder="Escribe aqui" aria-describedby="basic-addon2" />
-								<div class="input-group-append">
+								<div class="input-group mb-3">
+									<input id="message-input" type="text" class="form-control" placeholder="Escribe aqui" aria-describedby="button-addon2" />
 									<button class="btn btn-outline-secondary" type="submit">Enviar</button>
 								</div>
 							</form>
+						</div>
 					</div>
 				</main>
 			</div>

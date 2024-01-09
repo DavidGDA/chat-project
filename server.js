@@ -15,23 +15,30 @@ const WebSocketIO = require('socket.io');
 
 const app = express();
 const server = nodeHTTP.createServer(app);
-const io = new WebSocketIO.Server(server);
+const io = new WebSocketIO.Server(server, {
+	// cors: {
+	// 	origin: 'http://localhost:3000',
+	// },
+	connectionStateRecovery: {
+		maxDisconnectionDuration: 6000,
+	},
+});
 
 io.engine.on('connection_error', err => {
 	console.log(err);
 });
+
 io.on('connection', socket => {
 	console.log('connected');
 
-	socket.on('message', message => {
-		io.emit('message', message);
+	socket.on('message', (message, username) => {
+		io.emit('message', message, username);
 	});
 
 	socket.on('disconnect', () => {
 		console.log('disconnected');
 	});
 });
-
 
 const PORT = 3000;
 dotenv.config();
@@ -45,6 +52,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
 	session({
@@ -100,9 +108,17 @@ app.route('/accounts/singup')
 
 app.get('/dashboard/chat', (req, res) => {
 	if (req.session.username) {
-		res.render('chat', {title: 'Chat'});
+		res.render('chat', { title: 'Chat' });
 	} else {
 		res.redirect('/accounts/login');
+	}
+});
+
+app.post('/helpers/username', (req, res) => {
+	if (req.session.username) {
+		res.json({ username: req.session.username });
+	} else {
+		res.json({ username: 'no-user' });
 	}
 });
 

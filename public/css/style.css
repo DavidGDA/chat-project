@@ -42,7 +42,7 @@
 }
 
 .chat-container {
-	height: 60vh;
+	height: 80vh;
 	justify-content: end;
 	overflow-y: scroll;
 }
@@ -69,5 +69,10 @@
 
 	#responsiveButton {
 		position: relative;
+	}
+}
+@media (max-width: 575px) {
+	.chat-container {
+		flex-direction: column;
 	}
 }
