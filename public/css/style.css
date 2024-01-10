@@ -44,9 +44,12 @@
 .chat-container {
 	height: 80vh;
 	justify-content: end;
-	overflow-y: scroll;
+	overflow: hidden;
 }
 
+#messages {
+	overflow-y: scroll;
+}
 
 .chat-container .input-group {
 	flex-direction: row;

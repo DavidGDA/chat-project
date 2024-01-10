@@ -1,14 +1,14 @@
 const express = require('express');
 const ejs = require('ejs');
-const path = require('path');
-const bodyParser = require('body-parser');
+const { join } = require('path');
+const { json, urlencoded } = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
-const bcrypt = require('bcrypt');
+const { compare, genSalt, hash } = require('bcrypt');
 const appAuth = require('./routes/login_auth_session');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const Sequelize = require('sequelize');
+const { Sequelize } = require('sequelize');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const nodeHTTP = require('node:http');
 const WebSocketIO = require('socket.io');
@@ -25,19 +25,61 @@ io.engine.on('connection_error', err => {
 	console.log(err);
 });
 
+// On user connection
+
 io.on('connection', socket => {
 	console.log('connected');
 
-	socket.on('message', (message, username, user_id) => {
-		io.emit('message', message, username, user_id);
+	// On message
+
+	socket.on('message', async (message, user_id) => {
+		const username = socket.handshake.auth.username
 
 		const db = new sqlite3.Database('database.sqlite3');
-		const query = 'INSERT INTO messages (user_id, message) VALUES(?, ?)';
-		db.run(query, [user_id, message], function (err) {
-			if (err) {
-				console.log('Error on message query: ' + err);
-			}
-		});
+		const query = 'INSERT INTO messages (user_id, username, content) VALUES(?, ?, ?)';
+		try {
+			db.run(query, [user_id, username, message], function (err) {
+				if (err) {
+					console.log('Error on message query: ' + err);
+				}
+			});
+			io.emit('message', message, username);
+		} catch (error) {
+			console.log(error);
+		}
+	});
+
+	socket.on('last_messages', async () => {
+		const db = new sqlite3.Database('database.sqlite3');
+
+		const getMessages = () => {
+			return new Promise((resolve, reject) => {
+				const messages = [];
+
+				db.each(
+					'SELECT * FROM messages',
+					(err, row) => {
+						if (err) {
+							reject(err);
+						} else {
+							messages.push({username: row.username, content: row.content});
+						}
+					},
+					(err) => {
+						if (err) {
+							reject(err);
+						} else {
+							resolve(messages);
+						}
+					}
+				);
+			});
+		};
+
+
+		const get_last_msg = await getMessages();
+		io.emit('last_messages', get_last_msg);
+		db.close();
 	});
 
 	socket.on('disconnect', () => {
@@ -55,10 +97,10 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 
 // Configuración de EJS como motor de plantillas
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', join(__dirname, 'views'));
 app.use(express.static('public'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(json());
+app.use(urlencoded({ extended: true }));
 app.use(
 	session({
 		secret: process.env.NAMESPACE_UUID,
@@ -119,20 +161,18 @@ app.get('/dashboard/chat', function (req, res) {
 	}
 });
 
-app.post('/helpers/userchat', function (req, res) {
-	if (req.session.username) {
+app.post('/api/helpers/userchat', function (req, res) {
+	if (req.session.id) {
 		const db = new sqlite3.Database('database.sqlite3');
 		const query = 'SELECT user_id FROM users WHERE username = ?';
 		db.get(query, [req.session.username], (err, row) => {
 			if (err) {
 				console.log('Database error on obtain user_id: ' + err);
 			}
-			console.log(req.session.username + ' : ' + row.user_id);
 			res.json({ username: req.session.username, user_id: row.user_id });
 		});
-		
 	} else {
-		res.json({ username: 'no-user', user_id: undefined});
+		res.json({ username: 'no-user', user_id: undefined });
 	}
 });
 

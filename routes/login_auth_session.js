@@ -1,11 +1,11 @@
-const express = require('express');
+const { Router } = require('express');
 const sqlite3 = require('sqlite3').verbose();
-const bcrypt = require('bcrypt');
+const { compare } = require('bcrypt');
 const session = require('express-session');
-const Sequelize = require('sequelize');
+const {Sequelize, STRING, DATE, TEXT } = require('sequelize');
 const SessionStore = require('connect-session-sequelize')(session.Store);
 
-const router = express.Router();
+const router = Router();
 
 const sequelize = new Sequelize('database', 'username', 'password', {
 	host: 'localhost',
@@ -15,20 +15,20 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 
 const Session = sequelize.define('Session', {
 	sid: {
-		type: Sequelize.STRING,
+		type: STRING,
 		primaryKey: true,
 	},
 	expires: {
-		type: Sequelize.DATE,
+		type: DATE,
 	},
 	data: {
-		type: Sequelize.TEXT,
+		type: TEXT,
 	},
 	createdAt: {
-		type: Sequelize.DATE,
+		type: DATE,
 	},
 	updatedAt: {
-		type: Sequelize.DATE,
+		type: DATE,
 	},
 });
 
@@ -45,9 +45,9 @@ router.route('/login').post(async function (req, res) {
 			});
 		});
 		if (data) {
-			const compare = bcrypt.compare(password, data.password);
+			const compare_password = compare(password, data.password);
 
-			if (!compare) {
+			if (!compare_password) {
 				return res.status(401).send('Incorrect password');
 			}
 			console.log('Correct password');

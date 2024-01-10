@@ -1,0 +1,6 @@
+CREATE TABLE messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
+    user_id INTEGER NOT NULL,
+    username VARCHAR(20),
+    content TEXT NOT NULL
+)
