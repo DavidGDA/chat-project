@@ -55,7 +55,6 @@ socket.on('message', function (msg, username) {
 socket.on('last_messages', function (messages_chat) {
 	messages_chat.forEach(message => {
 		const item = document.createElement('p');
-		console.log(message);
 		item.textContent = message.username + ': ' + message.content;
 		messages.appendChild(item);
 		scrollAdjust();

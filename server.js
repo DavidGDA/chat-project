@@ -78,7 +78,7 @@ io.on('connection', socket => {
 
 
 		const get_last_msg = await getMessages();
-		io.emit('last_messages', get_last_msg);
+		io.to(socket.id).emit('last_messages', get_last_msg);
 		db.close();
 	});
 
