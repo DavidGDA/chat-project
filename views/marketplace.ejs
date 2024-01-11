@@ -52,24 +52,29 @@
 							</div>
 						</div>
 					</nav>
-					<div class="row">
+					<!-- this row contains all the products -->
+					<div class="row" id="row-products">
 						<div class="col-sm-4">
-							<div class="card"">
-							<img src="" class="card-img-top" alt="..." />
-							<div class="card-body">
-								<p class="card-text">Publica un servicio</p>
+							<div class="card">
+								<div class="card-body">
+									<p class="card-text">Publica un servicio</p>
+								</div>
 							</div>
 						</div>
-					</div>
 
-					<div class="col-sm-4">
-						<div class="card">
-							<img src="" class="card-img-top" alt="..." />
-							<div class="card-body">
-								<p class="card-text">Producto</p>
+						<!-- generate all the cards -->
+						<% for(let i=0; i<products.length; i++) {%>
+						<div class="col-sm-4">
+							<div class="card">
+								<div class="card-name">
+									<p class="card-text"><%= products[i].name %></p>
+								</div>
+								<div class="card-body">
+									<p class="card-text"><%= products[i].description %></p>
+								</div>
 							</div>
 						</div>
-					</div>
+						<% } %>
 				</main>
 			</div>
 		</div>

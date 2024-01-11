@@ -5,6 +5,7 @@ const { json, urlencoded } = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const { compare, genSalt, hash } = require('bcrypt');
 const appAuth = require('./routes/login_auth_session');
+const marketplaceRoute = require('./routes/marketplace')
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -12,6 +13,7 @@ const { Sequelize } = require('sequelize');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const nodeHTTP = require('node:http');
 const WebSocketIO = require('socket.io');
+const { Database } = require('sqlite3');
 
 const app = express();
 const server = nodeHTTP.createServer(app);
@@ -33,7 +35,7 @@ io.on('connection', socket => {
 	// On message
 
 	socket.on('message', async (message, user_id) => {
-		const username = socket.handshake.auth.username
+		const username = socket.handshake.auth.username;
 
 		const db = new sqlite3.Database('database.sqlite3');
 		const query = 'INSERT INTO messages (user_id, username, content) VALUES(?, ?, ?)';
@@ -62,10 +64,10 @@ io.on('connection', socket => {
 						if (err) {
 							reject(err);
 						} else {
-							messages.push({username: row.username, content: row.content});
+							messages.push({ username: row.username, content: row.content });
 						}
 					},
-					(err) => {
+					err => {
 						if (err) {
 							reject(err);
 						} else {
@@ -75,7 +77,6 @@ io.on('connection', socket => {
 				);
 			});
 		};
-
 
 		const get_last_msg = await getMessages();
 		io.to(socket.id).emit('last_messages', get_last_msg);
@@ -176,13 +177,7 @@ app.post('/api/helpers/userchat', function (req, res) {
 	}
 });
 
-app.get('/dashboard/marketplace', (req, res) => {
-	if (req.session.username) {
-		res.render('marketplace', { title: 'Marketplace' });
-	} else {
-		res.redirect('/accounts/login');
-	}
-});
+app.use('/dashboard/marketplace', marketplaceRoute);
 
 app.use((err, req, res, next) => {
 	res.status(404).send('404 not found');

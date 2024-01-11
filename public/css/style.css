@@ -51,6 +51,19 @@
 	overflow-y: scroll;
 }
 
+#row-products {
+    width: 100%;
+
+}
+
+.card-name {
+	display: flex;
+	justify-content: center;
+	margin-top: 15px;
+	font-size: large;
+	font-weight: 600;
+}
+
 .chat-container .input-group {
 	flex-direction: row;
 }
