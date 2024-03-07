@@ -5,6 +5,8 @@ async function createMessage(user_id, content) {
 		const newMessage = await messages.create({
 			user_id: user_id,
 			content: content,
+			date: new Date().getDate(),
+			time: new Date().getHours()
 		});
 
 		return newMessage;
@@ -23,4 +25,4 @@ async function getMessages() {
 	}
 }
 
-module.exports = { createMessage };
+module.exports = { createMessage, getMessages };

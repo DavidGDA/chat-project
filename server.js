@@ -3,7 +3,7 @@ const { join } = require('path');
 const { json, urlencoded } = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const { sessionStorage, authRouter } = require('./routes/session_routes');
-const { createMessage } = require('./models_controllers/messages_controller')
+const { createMessage, getMessages } = require('./models_controllers/messages_controller')
 const nodeHTTP = require('node:http');
 const WebSocketIO = require('socket.io');
 const app = express();
@@ -25,15 +25,8 @@ io.on('connection', socket => {
 
 	socket.on('message', async (message, user_id) => {
 		const username = socket.handshake.auth.username;
-
-		const db = new sqlite3.Database('database.sqlite3');
-		const query = 'INSERT INTO messages (message_id, content) VALUES(?, ?)';
 		try {
-			db.run(query, [user_id, username, message], function (err) {
-				if (err) {
-					console.log('Error on message query: ' + err);
-				}
-			});
+			createMessage(username, message);
 			io.emit('message', message, username);
 		} catch (error) {
 			console.log(error);
@@ -41,35 +34,8 @@ io.on('connection', socket => {
 	});
 
 	socket.on('last_messages', async () => {
-		const db = new sqlite3.Database('database.sqlite3');
-
-		const getMessages = () => {
-			return new Promise((resolve, reject) => {
-				const messages = [];
-
-				db.each(
-					'SELECT * FROM messages',
-					(err, row) => {
-						if (err) {
-							reject(err);
-						} else {
-							messages.push({ username: row.username, content: row.content });
-						}
-					},
-					err => {
-						if (err) {
-							reject(err);
-						} else {
-							resolve(messages);
-						}
-					}
-				);
-			});
-		};
-
 		const get_last_msg = await getMessages();
 		io.to(socket.id).emit('last_messages', get_last_msg);
-		db.close();
 	});
 
 	socket.on('disconnect', () => {

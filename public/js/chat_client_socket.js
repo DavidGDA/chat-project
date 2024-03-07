@@ -6,20 +6,20 @@ const user = async () => {
 		headers: {
 			'Content-Type': 'application/json',
 		},
-	}) 
-	const user_info = await res.json()
+	});
+	const user_info = await res.json();
 	return { username: user_info.username, user_id: user_info.user_id };
-}
+};
 
-const user_info = await user()
+const user_info = await user();
 
 const socket = io({
 	auth: {
-		username: user_info.username
-	}
+		username: user_info.username,
+	},
 });
 
-socket.emit('last_messages')
+socket.emit('last_messages');
 
 const form = document.getElementById('chat-form');
 const messageInput = document.getElementById('message-input');
@@ -29,15 +29,15 @@ function scrollAdjust() {
 	messages.scrollTop = messages.scrollHeight;
 }
 
-window.onload = scrollAdjust
+window.onload = scrollAdjust;
 
 form.addEventListener('submit', e => {
 	e.preventDefault();
-  	const message = messageInput.value;
+	const message = messageInput.value;
 
 	if (messageInput.value) {
-    	messageInput.value = '';
-      	socket.emit('message', message, user_info.user_id);
+		messageInput.value = '';
+		socket.emit('message', message, user_info.user_id);
 	}
 });
 socket.on('error', err => {
@@ -53,9 +53,11 @@ socket.on('message', function (msg, username) {
 });
 
 socket.on('last_messages', function (messages_chat) {
-	messages_chat.forEach(message => {
+	const stringMessages = JSON.parse(messages_chat);
+
+	stringMessages.forEach(message => {
 		const item = document.createElement('p');
-		item.textContent = message.username + ': ' + message.content;
+		item.textContent = message.user_id + ': ' + message.content;
 		messages.appendChild(item);
 		scrollAdjust();
 	});
