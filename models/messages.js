@@ -21,4 +21,8 @@ const messages = databaseModel.define('Messages', {
 	
 });
 
+(async () => {
+	await databaseModel.sync();
+})();
+
 module.exports = { messages };

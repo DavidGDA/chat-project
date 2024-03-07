@@ -1,5 +1,5 @@
 /*  Claramente, aqui se expone el algoritmo de hashing de contraseñas,
-	pero como este es un repositorio de prueba, he decidido dejar uno basico  */
+	pero como este es un proyecto de practica, he decidido dejar uno basico  */
 
 const { Router } = require('express');
 const sqlite3 = require('sqlite3').verbose();
@@ -10,7 +10,8 @@ const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const { databaseModel, testDatabaseConnection } = require('../config/database');
 const dotenv = require('dotenv');
 const { compare, genSalt, hash } = require('bcrypt');
-const { users, syncUserModel } = require('../models/users');
+const { users } = require('../models/users');
+const { sessions } = require('../models/sessions');
 
 const authRouter = Router();
 dotenv.config();
@@ -40,7 +41,7 @@ authRouter
 		const hashed_password = await hash(form_password, salt);
 
 		await testDatabaseConnection();
-		const singupNewUser = await createNewUser(username, hashed_password);
+		await createNewUser(username, hashed_password, email);
 
 		res.redirect('/accounts/login');
 	});
@@ -48,44 +49,32 @@ authRouter
 authRouter
 	.route('/login')
 	.get(async function (req, res) {
-		const usersQuery = await users.findAll();
-		console.log('All users:', JSON.stringify(usersQuery, null, 2));
 		res.render('login', { title: 'Login' });
 	})
 	.post(async function (req, res) {
 		const username = req.body.username;
 		const password = req.body.password;
-		// const db = new sqlite3.Database('database.sqlite3');
-		// const query = 'SELECT * FROM users WHERE username = ?';
-		// try {
-		// 	const data = await new Promise((resolve, reject) => {
-		// 		db.get(query, [username], (err, data) => {
-		// 			if (err) reject(err);
-		// 			resolve(data);
-		// 		});
-		// 	});
-		// 	if (data) {
-		// 		const compare_password = compare(password, data.password);
+		try {
+			const usersQuery = await users.findOne({ where: { username: username } });
+			if (usersQuery === null) {
+				console.log('Usuario no encontrado');
+				return res.redirect('/accounts/singup');
+			} else {
+				const valid_password = compare(password, usersQuery.get('password'));
 
-		// 		if (!compare_password) {
-		// 			return res.status(401).send('Incorrect password');
-		// 		}
-		// 		console.log('Correct password');
-		// 		req.session.username = username;
-		// 		req.session.cookie.maxAge = 24 * 60 * 60 * 1000; // 1 Day
+				if (!valid_password) {
+					return res.status(401).send('Incorrect password');
+				} else {
+					req.session.username = username;
+					req.session.cookie.maxAge = 24 * 60 * 60 * 1000; // 1 dia
 
-		// 		Session.sync();
-		// 		return res.redirect('/');
-		// 	} else {
-		// 		console.log('Usuario no encontrado');
-		// 		return res.redirect('/accounts/singup');
-		// 	}
-		// } catch (err) {
-		// 	console.error('Error en la base de datos:', err);
-		// 	res.status(500).send('Error en la base de datos');
-		// } finally {
-		// 	db.close();
-		// }
+					sessions.sync();
+					return res.redirect('/');
+				}
+			}
+		} catch (err) {
+			console.error('Error en login: ' + err);
+		}
 	});
 
 authRouter.route('/logout').get((req, res) => {

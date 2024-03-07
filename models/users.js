@@ -9,6 +9,12 @@ const users = databaseModel.define('Users', {
 	username: {
 		type: STRING,
 		allowNull: false,
+		unique: true
+	},
+	email: {
+		type: STRING,
+		allowNull: false,
+		unique: true
 	},
 	password: {
 		type: STRING,

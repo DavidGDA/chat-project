@@ -20,4 +20,8 @@ const sessions = databaseModel.define('Sessions', {
 	},
 });
 
+(async () => {
+	await databaseModel.sync();
+})();
+
 module.exports = { sessions };
