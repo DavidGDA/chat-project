@@ -2,9 +2,7 @@
 	pero como este es un proyecto de practica, he decidido dejar uno basico  */
 
 const { Router } = require('express');
-const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
-const { Sequelize, STRING, DATE, TEXT } = require('sequelize');
 const { createNewUser } = require('../models_controllers/users_controller');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const { databaseModel, testDatabaseConnection } = require('../config/database');

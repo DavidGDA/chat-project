@@ -1,17 +1,10 @@
 const express = require('express');
-const ejs = require('ejs');
 const { join } = require('path');
 const { json, urlencoded } = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
-
 const { sessionStorage, authRouter } = require('./routes/session_routes');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
-const { Sequelize } = require('sequelize');
 const nodeHTTP = require('node:http');
 const WebSocketIO = require('socket.io');
-const { Database } = require('sqlite3');
-
 const app = express();
 const server = nodeHTTP.createServer(app);
 const io = new WebSocketIO.Server(server, {
