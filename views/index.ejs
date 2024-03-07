@@ -13,16 +13,19 @@
   <%- include('common/header.ejs') %>
   <main>
     <div class="hero d-flex flex-column justify-content-center align-items-center px-4 py-5">
-    <h1>Conectamos a las empresas</h1>
-    <p>Ofrecemos los mejores servicios de asistencia para tu negocio, comunicate con una red de profesionales
-      e incluyendo tecnologías de IA obtendrás las mejores estrategias económicas</p>
+    <h1>Proyecto de chat</h1>
+    <p>Bienvenido</p>
     <button type="button" class="btn btn-light">
       <% if (session) { %>
         <a href="/dashboard/chat/">continua como: <%= session.username %></a>
       <% } else { %>
       <a href="/accounts/login/">Login</a>
       <% } %>
+      <% if (!session) { %>
+    <button type="button" class="btn btn-light">
+      <a href="/accounts/register/">registrate</a>
     </button>
+    <% } %>
     </div>
   </main>
   
