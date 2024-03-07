@@ -2,9 +2,10 @@ const { Sequelize } = require('sequelize');
 const path = require('path');
 
 // configuracion de la base de datos
-const databaseModel = new Sequelize({
+const databaseModel = new Sequelize('database', 'admin', 'password', {
+	host: 'localhost',
 	dialect: 'sqlite',
-	storage: '../database.sqlite3',
+	storage: './database.sqlite3',
 	logging: false,
 	define: {
 		freezeTableName: true,
@@ -12,7 +13,7 @@ const databaseModel = new Sequelize({
 });
 
 // funcion para conectar a bd
-async function databaseConnection() {
+async function testDatabaseConnection() {
 	try {
 		await databaseModel.authenticate();
 		console.log('Conexión a la base de datos establecida correctamente.');
@@ -21,4 +22,4 @@ async function databaseConnection() {
 	}
 }
 
-module.exports = { databaseModel, databaseConnection }
+module.exports = { databaseModel, testDatabaseConnection };

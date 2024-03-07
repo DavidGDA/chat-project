@@ -7,7 +7,7 @@ const session = require('express-session');
 const { Sequelize, STRING, DATE, TEXT } = require('sequelize');
 const { createNewUser } = require('../models_controllers/users_controller');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
-const { databaseModel, databaseConnection } = require('../config/database');
+const { databaseModel, testDatabaseConnection } = require('../config/database');
 const dotenv = require('dotenv');
 const { compare, genSalt, hash } = require('bcrypt');
 const { users, syncUserModel } = require('../models/users');
@@ -39,7 +39,7 @@ authRouter
 		const salt = await genSalt();
 		const hashed_password = await hash(form_password, salt);
 
-		await databaseConnection();
+		await testDatabaseConnection();
 		const singupNewUser = await createNewUser(username, hashed_password);
 
 		res.redirect('/accounts/login');
@@ -49,7 +49,7 @@ authRouter
 	.route('/login')
 	.get(async function (req, res) {
 		const usersQuery = await users.findAll();
-		console.log('All users:', JSON.stringify(usersQuery, null , 2));
+		console.log('All users:', JSON.stringify(usersQuery, null, 2));
 		res.render('login', { title: 'Login' });
 	})
 	.post(async function (req, res) {
