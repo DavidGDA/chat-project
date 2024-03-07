@@ -1,14 +1,14 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
-// ruta al archivo de la base de datos (tiene que coincidir con: [ruta-desde-disco-sistema]\chat-project\database.sqlite3)
-const dbPath = path.resolve(__dirname, 'database.sqlite3');
-
 // configuracion de la base de datos
 const databaseModel = new Sequelize({
 	dialect: 'sqlite',
-	storage: dbPath,
+	storage: '../database.sqlite3',
 	logging: false,
+	define: {
+		freezeTableName: true,
+	},
 });
 
 // funcion para conectar a bd

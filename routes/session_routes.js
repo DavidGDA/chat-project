@@ -1,13 +1,32 @@
+/*  Claramente, aqui se expone el algoritmo de hashing de contraseñas,
+	pero como este es un repositorio de prueba, he decidido dejar uno basico  */
+
 const { Router } = require('express');
 const sqlite3 = require('sqlite3').verbose();
-const { compare } = require('bcrypt');
 const session = require('express-session');
 const { Sequelize, STRING, DATE, TEXT } = require('sequelize');
-const SessionStore = require('connect-session-sequelize')(session.Store);
+const { createNewUser } = require('../models_controllers/users_controller');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+const { databaseModel, databaseConnection } = require('../config/database');
+const dotenv = require('dotenv');
+const { compare, genSalt, hash } = require('bcrypt');
+const { users, syncUserModel } = require('../models/users');
 
-const router = Router();
+const authRouter = Router();
+dotenv.config();
 
-router
+const sessionStorage = session({
+	secret: process.env.NAMESPACE_UUID,
+	resave: false,
+	saveUninitialized: false,
+	store: new SequelizeStore({
+		db: databaseModel,
+		checkExpirationInterval: 24 * 60 * 60 * 1000, // The interval at which to cleanup expired sessions (1 minute)
+		expiration: 24 * 60 * 60 * 1000, // 1 Day, this is declared on maxAge session cookie
+	}),
+});
+
+authRouter
 	.route('/singup')
 	.get(function (req, res) {
 		res.render('register', { title: 'Singup' });
@@ -17,24 +36,20 @@ router
 		const email = req.body.email;
 		const form_password = req.body.password;
 
-		const salt = await bcrypt.genSalt();
-		const hashed_password = await bcrypt.hash(form_password, salt);
+		const salt = await genSalt();
+		const hashed_password = await hash(form_password, salt);
 
-		const db = new sqlite3.Database('database.sqlite3');
-		const query = 'INSERT INTO users (username, email, password) VALUES(?, ?, ?)';
-		db.run(query, [username, email, hashed_password], function (err) {
-			if (err) {
-				return res.status(500).send('Error on database');
-			}
-		});
-		db.close();
+		await databaseConnection();
+		const singupNewUser = await createNewUser(username, hashed_password);
 
 		res.redirect('/accounts/login');
 	});
 
-router
+authRouter
 	.route('/login')
-	.get(function (req, res) {
+	.get(async function (req, res) {
+		const usersQuery = await users.findAll();
+		console.log('All users:', JSON.stringify(usersQuery, null , 2));
 		res.render('login', { title: 'Login' });
 	})
 	.post(async function (req, res) {
@@ -73,7 +88,7 @@ router
 		// }
 	});
 
-router.route('/logout').get((req, res) => {
+authRouter.route('/logout').get((req, res) => {
 	req.session.destroy(err => {
 		if (err) {
 			return console.log(err);
@@ -83,4 +98,4 @@ router.route('/logout').get((req, res) => {
 	});
 });
 
-module.exports = router;
+module.exports = { authRouter, sessionStorage };

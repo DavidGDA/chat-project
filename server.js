@@ -3,17 +3,14 @@ const ejs = require('ejs');
 const { join } = require('path');
 const { json, urlencoded } = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
-const { compare, genSalt, hash } = require('bcrypt');
-const auth = require('./routes/session_routes');
-const dotenv = require('dotenv');
+
+const { sessionStorage, authRouter } = require('./routes/session_routes');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const { Sequelize } = require('sequelize');
-const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const nodeHTTP = require('node:http');
 const WebSocketIO = require('socket.io');
 const { Database } = require('sqlite3');
-const { databaseModel } = require('./config/database');
 
 const app = express();
 const server = nodeHTTP.createServer(app);
@@ -87,7 +84,6 @@ io.on('connection', socket => {
 });
 
 const PORT = 3000;
-dotenv.config();
 
 // Configuración de EJS como motor de plantillas
 app.set('view engine', 'ejs');
@@ -95,18 +91,7 @@ app.set('views', join(__dirname, 'views'));
 app.use(express.static('public'));
 app.use(json());
 app.use(urlencoded({ extended: true }));
-app.use(
-	session({
-		secret: process.env.NAMESPACE_UUID,
-		resave: false,
-		saveUninitialized: false,
-		store: new SequelizeStore({
-			db: databaseModel,
-			checkExpirationInterval: 24 * 60 * 60 * 1000, // The interval at which to cleanup expired sessions (1 minute)
-			expiration: 24 * 60 * 60 * 1000, // 1 Day, this is declared on maxAge session cookie
-		}),
-	})
-);
+app.use(sessionStorage);
 
 // Definición de rutas
 app.get('/', (req, res) => {
@@ -117,7 +102,7 @@ app.get('/', (req, res) => {
 	}
 });
 
-app.use('/accounts', auth);
+app.use('/accounts', authRouter);
 
 app.get('/dashboard/chat', function (req, res) {
 	if (req.session.username) {

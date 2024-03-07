@@ -16,4 +16,8 @@ const users = databaseModel.define('Users', {
 	},
 });
 
+(async () => {
+	await databaseModel.sync();
+})();
+
 module.exports = { users };

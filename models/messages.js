@@ -1,4 +1,4 @@
-const { INTEGER, STRING, DATE, TEXT } = require('sequelize');
+const { INTEGER, DATE, TEXT, TIME } = require('sequelize');
 const { databaseModel } = require('../config/database');
 
 const messages = databaseModel.define('Messages', {
@@ -15,9 +15,10 @@ const messages = databaseModel.define('Messages', {
 		allowNull: false,
 	},
 	time: {
-		type: DATETIME,
+		type: TIME,
 		allowNull: false,
 	},
+	
 });
 
 module.exports = { messages };
