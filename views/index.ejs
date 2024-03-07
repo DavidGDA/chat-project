@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-  <link rel="stylesheet" href="css/style.css">
-  <title><%= title %></title>
-</head>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+			crossorigin="anonymous" />
+		<link rel="stylesheet" href="css/style.css" />
+		<title><%= title %></title>
+	</head>
 
-<body>
-  <%- include('common/header.ejs') %>
-  <main>
-    <div class="hero d-flex flex-column justify-content-center align-items-center px-4 py-5">
-    <h1>Proyecto de chat</h1>
-    <p>Bienvenido</p>
-    <button type="button" class="btn btn-light">
-      <% if (session) { %>
-        <a href="/dashboard/chat/">continua como: <%= session.username %></a>
-      <% } else { %>
-      <a href="/accounts/login/">Login</a>
-      <% } %>
-      <% if (!session) { %>
-    <button type="button" class="btn btn-light">
-      <a href="/accounts/register/">registrate</a>
-    </button>
-    <% } %>
-    </div>
-  </main>
-  
-  <%- include('common/footer.ejs') %>
-  <%- include('common/scripts.ejs') %>
-</body>
+	<body>
+		<%- include('common/header.ejs') %>
+		<main>
+			<div class="hero d-flex flex-column justify-content-center align-items-center px-4 py-5">
+				<h1>Proyecto de chat</h1>
+				<p>Bienvenido</p>
+				<button type="button" class="btn btn-light">
+					<% if (session) { %>
+					<a href="/dashboard/chat/">continua como: <%= session.username %></a>
+					<% } else { %>
+					<a href="/accounts/login/">Login</a>
+					<% } %> <% if (!session) { %>
+				</button>
+				<button type="button" class="btn btn-light">
+					<a href="/accounts/register/">registrate</a>
+				</button>
+				<% } %>
+			</div>
+		</main>
 
+		<%- include('common/footer.ejs') %> <%- include('common/scripts.ejs') %>
+	</body>
 </html>
