@@ -65,14 +65,16 @@
 						<!-- generate all the cards -->
 						<% for(let i=0; i<products.length; i++) {%>
 						<div class="col-sm-4">
-							<div class="card">
-								<div class="card-name">
-									<p class="card-text"><%= products[i].name %></p>
+							<a href="marketplace/product?product_id=<%= products[i].id %>">
+								<div class="card">
+									<div class="card-name">
+										<p class="card-text"><%= products[i].name %></p>
+									</div>
+									<div class="card-body">
+										<p class="card-text"><%= products[i].description %></p>
+									</div>
 								</div>
-								<div class="card-body">
-									<p class="card-text"><%= products[i].description %></p>
-								</div>
-							</div>
+							</a>
 						</div>
 						<% } %>
 				</main>

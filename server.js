@@ -18,9 +18,7 @@ const { Database } = require('sqlite3');
 const app = express();
 const server = nodeHTTP.createServer(app);
 const io = new WebSocketIO.Server(server, {
-	connectionStateRecovery: {
-		maxDisconnectionDuration: 6000,
-	},
+	connectionStateRecovery: {},
 });
 
 io.engine.on('connection_error', err => {

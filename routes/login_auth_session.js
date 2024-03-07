@@ -7,31 +7,6 @@ const SessionStore = require('connect-session-sequelize')(session.Store);
 
 const router = Router();
 
-const sequelize = new Sequelize('database', 'username', 'password', {
-	host: 'localhost',
-	dialect: 'sqlite', // Aquí es donde especificas explícitamente el dialecto
-	storage: 'database.sqlite3', // Asegúrate de que esta es la ruta correcta a tu base de datos
-});
-
-const Session = sequelize.define('Session', {
-	sid: {
-		type: STRING,
-		primaryKey: true,
-	},
-	expires: {
-		type: DATE,
-	},
-	data: {
-		type: TEXT,
-	},
-	createdAt: {
-		type: DATE,
-	},
-	updatedAt: {
-		type: DATE,
-	},
-});
-
 router.route('/login').post(async function (req, res) {
 	const username = req.body.username;
 	const password = req.body.password;
