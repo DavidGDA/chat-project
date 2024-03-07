@@ -6,6 +6,10 @@ const messages = databaseModel.define('Messages', {
 		type: INTEGER,
 		primaryKey: true,
 	},
+	user_id: {
+		type: INTEGER,
+		allowNull: false,
+	},
 	content: {
 		type: TEXT,
 		allowNull: false,

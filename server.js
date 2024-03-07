@@ -3,6 +3,7 @@ const { join } = require('path');
 const { json, urlencoded } = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const { sessionStorage, authRouter } = require('./routes/session_routes');
+const { createMessage } = require('./models_controllers/messages_controller')
 const nodeHTTP = require('node:http');
 const WebSocketIO = require('socket.io');
 const app = express();
@@ -26,7 +27,7 @@ io.on('connection', socket => {
 		const username = socket.handshake.auth.username;
 
 		const db = new sqlite3.Database('database.sqlite3');
-		const query = 'INSERT INTO messages (user_id, username, content) VALUES(?, ?, ?)';
+		const query = 'INSERT INTO messages (message_id, content) VALUES(?, ?)';
 		try {
 			db.run(query, [user_id, username, message], function (err) {
 				if (err) {
@@ -97,7 +98,7 @@ app.get('/', (req, res) => {
 
 app.use('/accounts', authRouter);
 
-app.get('/dashboard/chat', function (req, res) {
+app.route('/dashboard/chat').get(function (req, res) {
 	if (req.session.username) {
 		res.render('chat', { title: 'Chat' });
 	} else {
@@ -108,15 +109,15 @@ app.get('/dashboard/chat', function (req, res) {
 app.post('/api/helpers/userchat', function (req, res) {
 	if (req.session.id) {
 		const db = new sqlite3.Database('database.sqlite3');
-		const query = 'SELECT user_id FROM users WHERE username = ?';
+		const query = 'SELECT id FROM users WHERE username = ?';
 		db.get(query, [req.session.username], (err, row) => {
 			if (err) {
 				console.log('Database error on obtain user_id: ' + err);
 			}
-			res.json({ username: req.session.username, user_id: row.user_id });
+			return res.json({ username: req.session.username, user_id: row.user_id });
 		});
 	} else {
-		res.json({ username: 'no-user', user_id: undefined });
+		return res.json({ username: 'no-user', user_id: undefined });
 	}
 });
 
