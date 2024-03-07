@@ -59,19 +59,22 @@ authRouter
 			if (usersQuery === null) {
 				console.log('Usuario no encontrado');
 				return res.redirect('/accounts/singup');
-			} else {
-				const valid_password = compare(password, usersQuery.get('password'));
-
-				if (!valid_password) {
-					return res.status(401).send('Incorrect password');
-				} else {
-					req.session.username = username;
-					req.session.cookie.maxAge = 24 * 60 * 60 * 1000; // 1 dia
-
-					sessions.sync();
-					return res.redirect('/');
-				}
 			}
+
+			const valid_password = async () => {
+				return compare(password, usersQuery.get('password'));
+			}
+
+			const validate = await valid_password()
+
+			if (!validate) {
+				return res.status(401).send('Incorrect password');
+			}
+			req.session.username = username;
+			req.session.cookie.maxAge = 24 * 60 * 60 * 1000; // 1 dia
+
+			sessions.sync();
+			return res.redirect('/');
 		} catch (err) {
 			console.error('Error en login: ' + err);
 		}
