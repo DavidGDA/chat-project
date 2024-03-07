@@ -1,4 +1,7 @@
-const sessions = sequelize.define('Session', {
+const { STRING, DATE, TEXT } = require('sequelize');
+const { databaseModel } = require('../config/database');
+
+const sessions = databaseModel.define('Sessions', {
 	sid: {
 		type: STRING,
 		primaryKey: true,
@@ -16,3 +19,5 @@ const sessions = sequelize.define('Session', {
 		type: DATE,
 	},
 });
+
+module.exports = { sessions };

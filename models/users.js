@@ -1,7 +1,7 @@
-// const { DataTypes } = require('sequelize'); descomentar si hay errores de tipos de datos
+const { INTEGER, STRING } = require('sequelize');
 const { databaseModel } = require('../config/database');
 
-const users = databaseModel.define('users', {
+const users = databaseModel.define('Users', {
 	id: {
 		type: INTEGER,
 		primaryKey: true,
@@ -15,3 +15,5 @@ const users = databaseModel.define('users', {
 		allowNull: false,
 	},
 });
+
+module.exports = { users };
