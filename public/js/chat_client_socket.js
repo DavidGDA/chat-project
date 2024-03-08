@@ -1,7 +1,7 @@
 import { io } from 'https://cdn.socket.io/4.3.2/socket.io.esm.min.js';
 
 const user = async () => {
-	const res = await fetch(location.protocol + '//' + location.hostname + ':' + location.port + '/api/helpers/userchat/', {
+	const res = await fetch(location.protocol + '//' + location.hostname + ':' + location.port + '/api/helpers/getuser', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',

@@ -1,33 +1,30 @@
 const express = require('express');
 const { join } = require('path');
 const { json, urlencoded } = require('body-parser');
-const sqlite3 = require('sqlite3').verbose();
 const { sessionStorage, authRouter } = require('./routes/session_routes');
-const { createMessage, getMessages } = require('./models_controllers/messages_controller')
+const { createMessage, getMessages } = require('./models_controllers/messages_controller');
+const { users } = require('./models/users');
 const nodeHTTP = require('node:http');
 const WebSocketIO = require('socket.io');
 const app = express();
 const server = nodeHTTP.createServer(app);
-const io = new WebSocketIO.Server(server, {
+const socketIOServer = new WebSocketIO.Server(server, {
 	connectionStateRecovery: {},
 });
 
-io.engine.on('connection_error', err => {
+socketIOServer.engine.on('connection_error', err => {
 	console.log(err);
 });
 
 // On user connection
 
-io.on('connection', socket => {
-	console.log('connected');
-
-	// On message
-
-	socket.on('message', async (message, user_id) => {
+socketIOServer.on('connection', socket => {
+	// Al recibir un mensaje
+	socket.on('message', async message => {
 		const username = socket.handshake.auth.username;
 		try {
 			createMessage(username, message);
-			io.emit('message', message, username);
+			socketIOServer.emit('message', message, username);
 		} catch (error) {
 			console.log(error);
 		}
@@ -35,7 +32,7 @@ io.on('connection', socket => {
 
 	socket.on('last_messages', async () => {
 		const get_last_msg = await getMessages();
-		io.to(socket.id).emit('last_messages', get_last_msg);
+		socketIOServer.to(socket.id).emit('last_messages', get_last_msg);
 	});
 
 	socket.on('disconnect', () => {
@@ -72,16 +69,10 @@ app.route('/dashboard/chat').get(function (req, res) {
 	}
 });
 
-app.post('/api/helpers/userchat', function (req, res) {
+app.post('/api/helpers/getuser', async function (req, res) {
 	if (req.session.id) {
-		const db = new sqlite3.Database('database.sqlite3');
-		const query = 'SELECT id FROM users WHERE username = ?';
-		db.get(query, [req.session.username], (err, row) => {
-			if (err) {
-				console.log('Database error on obtain user_id: ' + err);
-			}
-			return res.json({ username: req.session.username, user_id: row.user_id });
-		});
+		const userQuery = await users.findByPk(req.session.user_id);
+		return res.json({ username: userQuery.get('username'), user_id: userQuery.get('id') });
 	} else {
 		return res.json({ username: 'no-user', user_id: undefined });
 	}

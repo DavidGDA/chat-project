@@ -61,14 +61,15 @@ authRouter
 
 			const valid_password = async () => {
 				return compare(password, usersQuery.get('password'));
-			}
+			};
 
-			const validate = await valid_password()
+			const validate = await valid_password();
 
 			if (!validate) {
 				return res.status(401).send('Incorrect password');
 			}
 			req.session.username = username;
+			req.session.user_id = usersQuery.get('id');
 			req.session.cookie.maxAge = 24 * 60 * 60 * 1000; // 1 dia
 
 			sessions.sync();
@@ -81,7 +82,7 @@ authRouter
 authRouter.route('/logout').get((req, res) => {
 	req.session.destroy(err => {
 		if (err) {
-			return console.log(err);
+			return console.log('Error en logout: ' + err);
 		}
 		res.clearCookie('Session');
 		res.redirect('/');
