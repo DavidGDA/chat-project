@@ -26,7 +26,7 @@ const sessionStorage = session({
 });
 
 authRouter
-	.route('/singup')
+	.route('/register')
 	.get(function (req, res) {
 		res.render('register', { title: 'Singup' });
 	})
