@@ -6,18 +6,34 @@ const { createMessage, getMessages } = require('./models_controllers/messages_co
 const { users } = require('./models/users');
 const nodeHTTP = require('node:http');
 const WebSocketIO = require('socket.io');
+
+// Creando la aplicacion express
 const app = express();
 const server = nodeHTTP.createServer(app);
+
+const PORT = 3000;
+
+// Configuración de la app Express
+app.set('view engine', 'ejs');
+app.set('views', join(__dirname, 'views'));
+app.use(express.static('public'));
+app.use(json());
+app.use(urlencoded({ extended: true }));
+app.use(sessionStorage);
+
+// Creacion de el servidor websocket
 const socketIOServer = new WebSocketIO.Server(server, {
-	connectionStateRecovery: {},
+	connectionStateRecovery: {
+		maxDisconnectionDuration: 6000,
+	},
 });
 
+// al haber un error, se ve en consola la fuente de este
 socketIOServer.engine.on('connection_error', err => {
-	console.log(err);
+	console.log('Error al conectarse al servidor websocket: ' + err);
 });
 
-// On user connection
-
+// Al recibir la conexion de un usuario al socket de chat
 socketIOServer.on('connection', socket => {
 	// Al recibir un mensaje
 	socket.on('message', async message => {
@@ -26,29 +42,25 @@ socketIOServer.on('connection', socket => {
 			createMessage(username, message);
 			socketIOServer.emit('message', message, username);
 		} catch (error) {
-			console.log(error);
+			console.log('Error al recibir mensaje: ' + error);
 		}
 	});
 
+	// Evento para recuperar mensajes desde la base de datos
 	socket.on('last_messages', async () => {
 		const get_last_msg = await getMessages();
 		socketIOServer.to(socket.id).emit('last_messages', get_last_msg);
 	});
 
+	// Por el momento, estas funciones son de depuracion
 	socket.on('disconnect', () => {
 		console.log('disconnected');
 	});
+
+	socket.on('reconnect', () => {
+		console.log('reconnected');
+	});
 });
-
-const PORT = 3000;
-
-// Configuración de EJS como motor de plantillas
-app.set('view engine', 'ejs');
-app.set('views', join(__dirname, 'views'));
-app.use(express.static('public'));
-app.use(json());
-app.use(urlencoded({ extended: true }));
-app.use(sessionStorage);
 
 // Definición de rutas
 app.get('/', (req, res) => {
@@ -61,7 +73,7 @@ app.get('/', (req, res) => {
 
 app.use('/accounts', authRouter);
 
-app.route('/dashboard/chat').get(function (req, res) {
+app.route('/dashboard/chat').get(async (req, res) => {
 	if (req.session.username) {
 		res.render('chat', { title: 'Chat' });
 	} else {
@@ -69,12 +81,17 @@ app.route('/dashboard/chat').get(function (req, res) {
 	}
 });
 
-app.post('/api/helpers/getuser', async function (req, res) {
-	if (req.session.id) {
-		const userQuery = await users.findByPk(req.session.user_id);
-		return res.json({ username: userQuery.get('username'), user_id: userQuery.get('id') });
+app.get('/api/getuser', async (req, res) => {
+	if (req.session.username) {
+		const userQuery = await users.findOne({ where: { id: req.session.user_id } });
+		try {
+			return res.json({ username: userQuery.get('username'), user_id: userQuery.get('id') });
+		} catch (error) {
+			console.error('Hubo un error al obtener datos en la query de userAPI: ' + error);
+			res.json({ username: 'user-server-get-error', user_id: undefined });
+		}
 	} else {
-		return res.json({ username: 'no-user', user_id: undefined });
+		res.json({ username: 'no-user', user_id: undefined });
 	}
 });
 

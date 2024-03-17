@@ -30,7 +30,7 @@ authRouter
 	.get(function (req, res) {
 		res.render('register', { title: 'Singup' });
 	})
-	.post(async function (req, res) {
+	.post(async (req, res) => {
 		const username = req.body.username;
 		const email = req.body.email;
 		const form_password = req.body.password;
@@ -46,7 +46,7 @@ authRouter
 
 authRouter
 	.route('/login')
-	.get(async function (req, res) {
+	.get(async (req, res) => {
 		res.render('login', { title: 'Login' });
 	})
 	.post(async function (req, res) {

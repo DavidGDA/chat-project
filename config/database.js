@@ -1,5 +1,4 @@
 const { Sequelize } = require('sequelize');
-const path = require('path');
 
 // configuracion de la base de datos
 const databaseModel = new Sequelize('database', 'admin', 'password', {
@@ -13,13 +12,13 @@ const databaseModel = new Sequelize('database', 'admin', 'password', {
 });
 
 // funcion para conectar a bd
-async function testDatabaseConnection() {
+testDatabaseConnection = async () => {
 	try {
 		await databaseModel.authenticate();
 		console.log('Conexión a la base de datos establecida correctamente.');
 	} catch (error) {
 		console.error('Error al conectar con la base de datos:', error);
 	}
-}
+};
 
 module.exports = { databaseModel, testDatabaseConnection };

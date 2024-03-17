@@ -1,8 +1,8 @@
 import { io } from 'https://cdn.socket.io/4.3.2/socket.io.esm.min.js';
 
 const user = async () => {
-	const res = await fetch(location.protocol + '//' + location.hostname + ':' + location.port + '/api/helpers/getuser', {
-		method: 'POST',
+	const res = await fetch(location.protocol + '//' + location.hostname + ':' + location.port + '/api/getuser', {
+		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
 		},
@@ -44,15 +44,14 @@ socket.on('error', err => {
 	console.log(err);
 });
 
-socket.on('message', function (msg, username) {
+socket.on('message', (msg, username) => {
 	const item = document.createElement('p');
 	item.textContent = username + ': ' + msg;
 	messages.appendChild(item);
 	scrollAdjust();
-	console.log(socket.auth.chat_offset);
 });
 
-socket.on('last_messages', function (messages_chat) {
+socket.on('last_messages', messages_chat => {
 	const stringMessages = JSON.parse(messages_chat);
 
 	stringMessages.forEach(message => {
@@ -61,12 +60,4 @@ socket.on('last_messages', function (messages_chat) {
 		messages.appendChild(item);
 		scrollAdjust();
 	});
-});
-
-socket.on('reconnect', attemptNumber => {
-	console.log('Reconexión exitosa después de', attemptNumber, 'intentos');
-});
-
-socket.on('disconnect', () => {
-	console.log('Desconectado del servidor');
 });
